@@ -1,0 +1,83 @@
+# Root .dockerignore for multi-service build context
+# This applies to all services built from the root directory
+
+# Dependencies
+**/node_modules
+**/.pnpm-store
+.pnpm-debug.log
+
+# Build output
+**/dist
+**/*.tsbuildinfo
+
+# Development
+.env
+.env.*
+!.env.example
+**/.env.local
+
+# Testing
+**/coverage
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/__tests__
+**/__mocks__
+
+# IDE
+.vscode
+.idea
+**/*.swp
+**/*.swo
+**/*~
+
+# Version control
+.git
+.gitignore
+.gitattributes
+.gitmodules
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.circleci
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Task Master
+.taskmaster/
+
+# Logs
+logs
+**/*.log
+**/npm-debug.log*
+**/pnpm-debug.log*
+
+# OS
+.DS_Store
+**/Thumbs.db
+
+# Turbo
+.turbo
+
+# Vite
+**/.vite
+**/vite.config.ts.timestamp-*
+
+# Data directory (will be mounted, not copied)
+data/
+./data
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Misc
+**/*.bak
+**/*.tmp
+**/*.temp

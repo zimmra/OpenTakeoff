@@ -1,0 +1,65 @@
+# ============================================================================
+# OpenTakeOff Local Docker Test Environment
+# Override configuration for running the full stack locally with Sentry disabled
+# ============================================================================
+#
+# Usage:
+#   pnpm docker:test:build   - Build images with Sentry disabled
+#   pnpm docker:test:up      - Start the test environment
+#   pnpm docker:test:down    - Stop and clean up
+#
+# This compose file extends the main docker-compose.yml for local testing
+# ============================================================================
+
+services:
+  # Backend Service (Test Profile)
+  # --------------------------------------------------------------------------
+  backend:
+    profiles: ["local-test"]
+    environment:
+      NODE_ENV: test
+      PORT: 3001
+      DATABASE_PATH: /data/sqlite/db.sqlite
+      UPLOAD_DIR: /data/uploads
+      PDF_MAX_SIZE_MB: ${PDF_MAX_SIZE_MB:-50}
+      ENABLE_METRICS: ${ENABLE_METRICS:-false}
+    volumes:
+      # Use throwaway data volumes for local testing
+      - ./.tmp/local-test/uploads:/data/uploads
+      - ./.tmp/local-test/sqlite:/data/sqlite
+    labels:
+      - "com.opentakeoff.environment=local-test"
+
+  # Frontend Service (Test Profile)
+  # --------------------------------------------------------------------------
+  frontend:
+    profiles: ["local-test"]
+    build:
+      args:
+        VITE_ENABLE_SENTRY: ${VITE_ENABLE_SENTRY:-false}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    labels:
+      - "com.opentakeoff.environment=local-test"
+
+  # Database Service (Test Profile)
+  # --------------------------------------------------------------------------
+  db:
+    profiles: ["local-test"]
+    volumes:
+      - ./.tmp/local-test/sqlite:/data/sqlite
+    labels:
+      - "com.opentakeoff.environment=local-test"
+
+# ============================================================================
+# Notes:
+#
+# - Data is stored in ./.tmp/local-test (gitignored)
+# - Sentry is disabled via build args
+# - NODE_ENV is set to "test" for backend
+# - Use with .env.docker.local configuration file
+#
+# Health Checks:
+# - Backend:  http://localhost:3001/healthz
+# - Frontend: http://localhost:5173/
+# ============================================================================

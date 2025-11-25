@@ -1,0 +1,204 @@
+# ============================================================================
+# OpenTakeOff Docker Compose Configuration
+# Orchestrates backend, frontend, database, and storage services
+# ============================================================================
+
+services:
+  # Backend Service
+  # --------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
+    container_name: opentakeoff-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3001
+      DATABASE_PATH: /data/sqlite/db.sqlite
+      UPLOAD_DIR: /data/uploads
+      PDF_MAX_SIZE_MB: ${PDF_MAX_SIZE_MB:-50}
+      ENABLE_METRICS: ${ENABLE_METRICS:-false}
+    volumes:
+      # Persistent data storage
+      - ./data:/data
+      # Named volume for better performance on non-Linux hosts
+      - data-uploads:/data/uploads
+      - data-sqlite:/data/sqlite
+    networks:
+      - opentakeoff-net
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+    labels:
+      - "com.opentakeoff.service=backend"
+      - "com.opentakeoff.version=0.1.0"
+
+  # Frontend Service
+  # --------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: ./apps/frontend/Dockerfile
+    container_name: opentakeoff-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    networks:
+      - opentakeoff-net
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    labels:
+      - "com.opentakeoff.service=frontend"
+      - "com.opentakeoff.version=0.1.0"
+
+  # Database Service (SQLite via volume)
+  # --------------------------------------------------------------------------
+  # Note: SQLite doesn't need a separate container, but we create a
+  # placeholder service to manage initialization and migrations in the future
+  db:
+    image: alpine:3.19
+    container_name: opentakeoff-db
+    restart: "no"
+    volumes:
+      - data-sqlite:/data/sqlite
+    networks:
+      - opentakeoff-net
+    command: >
+      sh -c "
+        mkdir -p /data/sqlite &&
+        touch /data/sqlite/.initialized &&
+        echo 'Database directory initialized' &&
+        tail -f /dev/null
+      "
+    healthcheck:
+      test: ["CMD", "test", "-f", "/data/sqlite/.initialized"]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    labels:
+      - "com.opentakeoff.service=database"
+      - "com.opentakeoff.version=0.1.0"
+
+  # Development Backend (with dev profile)
+  # --------------------------------------------------------------------------
+  # Run with: docker compose --profile dev up
+  backend-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
+      target: builder
+    container_name: opentakeoff-backend-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_PATH: /data/sqlite/db.sqlite
+      PDF_MAX_SIZE_MB: ${PDF_MAX_SIZE_MB:-50}
+      ENABLE_METRICS: ${ENABLE_METRICS:-false}
+    volumes:
+      # Mount source for hot reload (dev only)
+      - ./apps/backend/src:/app/apps/backend/src:ro
+      - ./apps/backend/drizzle:/app/apps/backend/drizzle:ro
+      - ./packages:/app/packages:ro
+      - ./data:/data
+      - data-uploads:/data/uploads
+      - data-sqlite:/data/sqlite
+    networks:
+      - opentakeoff-net
+    depends_on:
+      - db
+    command: ["pnpm", "--filter", "@opentakeoff/backend", "dev"]
+    labels:
+      - "com.opentakeoff.service=backend-dev"
+
+  # Development Frontend (with dev profile)
+  # --------------------------------------------------------------------------
+  frontend-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: ./apps/frontend/Dockerfile
+      target: builder
+    container_name: opentakeoff-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      NODE_ENV: development
+    volumes:
+      # Mount source for hot reload (dev only)
+      - ./apps/frontend/src:/app/apps/frontend/src:ro
+      - ./packages:/app/packages:ro
+    networks:
+      - opentakeoff-net
+    depends_on:
+      - backend-dev
+    command: ["pnpm", "--filter", "@opentakeoff/frontend", "dev"]
+    labels:
+      - "com.opentakeoff.service=frontend-dev"
+
+# Networks
+# --------------------------------------------------------------------------
+networks:
+  opentakeoff-net:
+    name: opentakeoff-net
+    driver: bridge
+    labels:
+      - "com.opentakeoff.network=main"
+
+# Volumes
+# --------------------------------------------------------------------------
+volumes:
+  # Persistent data storage
+  data-uploads:
+    name: opentakeoff-uploads
+    driver: local
+    labels:
+      - "com.opentakeoff.volume=uploads"
+
+  data-sqlite:
+    name: opentakeoff-sqlite
+    driver: local
+    labels:
+      - "com.opentakeoff.volume=database"
+
+# ============================================================================
+# Usage:
+#
+# Production:
+#   docker compose up -d
+#   docker compose down
+#   docker compose logs -f backend
+#
+# Development:
+#   docker compose --profile dev up
+#   docker compose --profile dev down
+#
+# Build only:
+#   docker compose build
+#   docker compose build --no-cache
+#
+# Validate configuration:
+#   docker compose config
+#
+# Clean up:
+#   docker compose down -v  # WARNING: Removes volumes (data loss!)
+# ============================================================================

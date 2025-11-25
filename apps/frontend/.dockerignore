@@ -1,0 +1,63 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+dist
+*.tsbuildinfo
+
+# Development
+.env
+.env.*
+!.env.example
+vite.config.ts.timestamp-*
+
+# Testing
+coverage
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__
+__mocks__
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Documentation
+*.md
+!README.md
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Turbo
+.turbo
+
+# Vite
+.vite
+
+# Misc
+*.bak
+*.tmp
+*.temp

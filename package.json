@@ -1,0 +1,54 @@
+{
+  "name": "opentakeoff",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-hostable web application for construction/electrical plan take-offs",
+  "keywords": [
+    "construction",
+    "takeoff",
+    "electrical",
+    "plans",
+    "estimation"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "prepare": "husky || true",
+    "dev": "pnpm --parallel --stream dev",
+    "build": "pnpm --recursive --stream build",
+    "lint": "pnpm --recursive --stream lint",
+    "typecheck": "pnpm --recursive --stream typecheck",
+    "test": "pnpm --recursive --stream test",
+    "format": "pnpm --recursive --stream format",
+    "clean": "pnpm --recursive --stream clean && rm -rf node_modules",
+    "docker:test:build": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local-test build",
+    "docker:test:up": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local-test up -d",
+    "docker:test:down": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local-test down && rm -rf ./.tmp/local-test",
+    "docker:test:logs": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile local-test logs -f",
+    "docker:test:full": "pnpm run docker:test:down && pnpm run docker:test:build && pnpm run docker:test:up && pnpm run docker:test:logs"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@commitlint/cli": "^18.0.0",
+    "@commitlint/config-conventional": "^18.0.0",
+    "@vitest/ui": "^1.4.0",
+    "eslint": "^9.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-react": "^7.37.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "happy-dom": "^15.0.0",
+    "jsdom": "^25.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^1.4.0"
+  }
+}
