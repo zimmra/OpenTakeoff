@@ -35,3 +35,6 @@ msg.txt
 .cursor/
 .mcp.json
 CLAUDE.md
+
+# Backend data/uploads (test artifacts)
+apps/backend/data/uploads/
