@@ -7,7 +7,7 @@ import type { UIMatch } from 'react-router-dom';
  * Generates navigation breadcrumbs from route metadata
  */
 function Breadcrumbs() {
-  const matches = useMatches() as UIMatch<unknown, { breadcrumb?: (match: UIMatch) => React.ReactNode }>[];
+  const matches = useMatches() as UIMatch<unknown, { breadcrumb?: (match: UIMatch) => React.ReactNode } | undefined>[];
 
   // Filter matches that have breadcrumb metadata
   const crumbs = matches

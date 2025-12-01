@@ -3,16 +3,16 @@
  * Base configuration for API requests
  */
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL) ?? '/api';
-
 export const apiClient = {
-  baseURL: API_BASE_URL,
+  get baseURL() {
+    return import.meta.env.VITE_API_BASE_URL ?? '/api';
+  },
 
   /**
    * Make an API request
    */
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${this.baseURL}${endpoint}`;
 
     // Only set Content-Type to application/json if:
     // 1. No Content-Type header was provided by caller

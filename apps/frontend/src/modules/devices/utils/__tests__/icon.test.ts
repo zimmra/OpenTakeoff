@@ -267,7 +267,7 @@ describe('DEFAULT_ICON_CATEGORIES', () => {
   });
 
   it('should have icons in each category', () => {
-    Object.entries(DEFAULT_ICON_CATEGORIES).forEach(([category, icons]) => {
+    Object.entries(DEFAULT_ICON_CATEGORIES).forEach(([_category, icons]) => {
       expect(icons.length).toBeGreaterThan(0);
       icons.forEach((item) => {
         expect(item).toHaveProperty('icon');
