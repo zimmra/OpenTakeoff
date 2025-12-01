@@ -12,7 +12,7 @@ function Breadcrumbs() {
   // Filter matches that have breadcrumb metadata
   const crumbs = matches
     .flatMap((match) => {
-      if (!match.handle.breadcrumb) return [];
+      if (!match.handle?.breadcrumb) return [];
       return [{
         label: match.handle.breadcrumb(match),
         pathname: match.pathname,
