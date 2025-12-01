@@ -5,7 +5,7 @@
 
 export const apiClient = {
   get baseURL() {
-    return (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api';
+    return import.meta.env.VITE_API_BASE_URL ?? '/api';
   },
 
   /**
