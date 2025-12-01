@@ -8,6 +8,7 @@ import { immer } from 'zustand/middleware/immer';
 import { enableMapSet } from 'immer';
 import { useShallow } from 'zustand/react/shallow';
 import type { Stamp } from '../types';
+import { DEFAULT_GRID_SIZE } from '../utils/coordinates';
 
 // Enable Immer's MapSet plugin for Map/Set support
 enableMapSet();
@@ -61,7 +62,7 @@ export const useStampStore = create<StampState>()(
     selectedStampId: null,
     isPlacementMode: false,
     snapToGrid: false,
-    gridSize: 864, // 12 inches * 72 points/inch at scale 1.0
+    gridSize: DEFAULT_GRID_SIZE, // Default to 1/4 inch grid
     deviceIconRadius: 14, // Default radius
 
     // Stamp entity management

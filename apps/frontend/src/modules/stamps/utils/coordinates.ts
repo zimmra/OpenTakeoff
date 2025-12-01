@@ -8,6 +8,46 @@
 import type { PageMetadata } from '../../canvas/stores/useViewportStore';
 
 /**
+ * Grid size option for snap-to-grid feature
+ */
+export interface GridSizeOption {
+  /** Display label */
+  label: string;
+  /** Grid size in PDF points (0 = free placement/no snap) */
+  size: number;
+  /** Optional description */
+  description?: string;
+}
+
+/**
+ * Free placement option (no snapping)
+ */
+export const FREE_PLACEMENT_OPTION: GridSizeOption = {
+  label: 'Free Placement',
+  size: 0,
+  description: 'No snapping'
+};
+
+/**
+ * Available grid size options for snap-to-grid
+ * Sizes are in PDF points (72 points = 1 inch)
+ * Range from free placement to 1 inch grid (largest practical snap)
+ */
+export const GRID_SIZE_OPTIONS: GridSizeOption[] = [
+  FREE_PLACEMENT_OPTION,
+  { label: '1/16″ Grid', size: 4.5, description: 'Finest precision' },
+  { label: '1/8″ Grid', size: 9, description: 'High precision' },
+  { label: '1/4″ Grid', size: 18, description: 'Medium precision' },
+  { label: '1/2″ Grid', size: 36, description: 'Standard' },
+  { label: '1″ Grid', size: 72, description: 'Coarse' },
+];
+
+/**
+ * Default grid size (1/4 inch - good balance of precision and usability)
+ */
+export const DEFAULT_GRID_SIZE = 18;
+
+/**
  * Snap coordinates to grid in world space
  * @param x - X coordinate in world space
  * @param y - Y coordinate in world space
