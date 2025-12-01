@@ -776,7 +776,7 @@ describe('Project Routes', () => {
         const linkHeader = response.headers.link as string;
 
         // Verify Link header format: </projects?limit=2&cursor=xxx>; rel="next"
-        expect(linkHeader).toMatch(/^<\/api\/projects\?limit=2&cursor=[^>]+>; rel="next"$/);
+        expect(linkHeader).toMatch(/^<\/projects\?limit=2&cursor=[^>]+>; rel="next"$/);
 
         // Extract cursor from Link header
         const cursorMatch = /cursor=([^>&]+)/.exec(linkHeader);
