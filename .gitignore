@@ -33,3 +33,5 @@ msg.txt
 .taskmaster/
 .cursor/
 .mcp.json
+
+apps/backend/data/uploads/
