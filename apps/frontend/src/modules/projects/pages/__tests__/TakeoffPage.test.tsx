@@ -157,7 +157,7 @@ class ResizeObserverMock {
             right: 800,
             x: 0,
             y: 0,
-            toJSON: () => {},
+            toJSON: () => ({}),
           },
           target: element,
           borderBoxSize: [],

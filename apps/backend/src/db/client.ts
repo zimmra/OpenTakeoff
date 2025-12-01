@@ -49,7 +49,7 @@ function createSqliteConnection() {
 /**
  * Run database migrations
  */
-export async function migrateDatabase(db: BetterSQLite3Database<typeof schema>) {
+export function migrateDatabase(db: BetterSQLite3Database<typeof schema>) {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   // In both src/db/client.ts (dev) and dist/db/client.js (prod),
   // the drizzle folder is at ../../drizzle relative to this file
@@ -57,7 +57,7 @@ export async function migrateDatabase(db: BetterSQLite3Database<typeof schema>) 
   
   console.log('Running migrations from:', migrationsFolder);
   
-  await migrate(db, { migrationsFolder });
+  migrate(db, { migrationsFolder });
 }
 
 /**
@@ -77,7 +77,7 @@ export async function initializeDatabase(): Promise<DatabaseInstance> {
   const db = drizzle(sqlite, { schema });
 
   // Run migrations on startup
-  await migrateDatabase(db);
+  migrateDatabase(db);
 
   return { db, sqlite };
 }
