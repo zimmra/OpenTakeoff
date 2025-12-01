@@ -29,9 +29,9 @@ resolve_conflicts.py
 msg.txt
 /apps/frontend/dist
 /.tmp
-.claude/
 .serena/
 .taskmaster/
 .cursor/
 .mcp.json
-CLAUDE.md
+
+apps/backend/data/uploads/
