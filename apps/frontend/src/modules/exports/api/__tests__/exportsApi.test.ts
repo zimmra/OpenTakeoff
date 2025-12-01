@@ -3,8 +3,9 @@
  * Unit tests for exports API client functions
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { exportsApi } from '../exportsApi';
+import { apiClient } from '../../../../lib/api';
 import { RateLimitError, EXPORT_MIME_TYPES } from '../../types';
 import type { ExportFormat } from '../../types';
 
@@ -14,15 +15,9 @@ global.fetch = mockFetch;
 
 describe('exportsApi', () => {
   const mockProjectId = 'project-123';
-  const mockBaseUrl = 'http://localhost:3001';
 
   beforeEach(() => {
     mockFetch.mockReset();
-    vi.stubEnv('VITE_API_BASE_URL', mockBaseUrl);
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
   });
 
   describe('createExport', () => {
@@ -50,9 +45,9 @@ describe('exportsApi', () => {
 
         const result = await exportsApi.createExport(mockProjectId, format, true);
 
-        // Verify request
+        // Verify request - use apiClient.baseURL for actual URL
         expect(mockFetch).toHaveBeenCalledWith(
-          `${mockBaseUrl}/projects/${mockProjectId}/exports`,
+          `${apiClient.baseURL}/projects/${mockProjectId}/exports`,
           {
             method: 'POST',
             headers: {

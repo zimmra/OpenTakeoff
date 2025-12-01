@@ -3,8 +3,9 @@
  * Unit tests for counts API client functions
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { countsApi } from '../countsApi';
+import { apiClient } from '../../../../lib/api';
 import type { CountsResponse, RecomputeCountsResponse } from '../../types';
 
 // Mock fetch globally
@@ -13,17 +14,10 @@ global.fetch = mockFetch;
 
 describe('countsApi', () => {
   const mockPlanId = 'plan-123';
-  const mockBaseUrl = 'http://localhost:3001';
 
   beforeEach(() => {
     // Reset mocks before each test
     mockFetch.mockReset();
-    // Mock apiClient.baseURL
-    vi.stubEnv('VITE_API_BASE_URL', mockBaseUrl);
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
   });
 
   describe('getCounts', () => {
@@ -69,7 +63,7 @@ describe('countsApi', () => {
 
       const result = await countsApi.getCounts(mockPlanId);
 
-      expect(mockFetch).toHaveBeenCalledWith(`${mockBaseUrl}/plans/${mockPlanId}/counts`, {
+      expect(mockFetch).toHaveBeenCalledWith(`${apiClient.baseURL}/plans/${mockPlanId}/counts`, {
         method: 'GET',
       });
 
@@ -92,7 +86,7 @@ describe('countsApi', () => {
 
       const result = await countsApi.getCounts(mockPlanId, { ifNoneMatch: previousETag });
 
-      expect(mockFetch).toHaveBeenCalledWith(`${mockBaseUrl}/plans/${mockPlanId}/counts`, {
+      expect(mockFetch).toHaveBeenCalledWith(`${apiClient.baseURL}/plans/${mockPlanId}/counts`, {
         method: 'GET',
         headers: {
           'If-None-Match': previousETag,
@@ -220,6 +214,7 @@ describe('countsApi', () => {
     };
 
     it('should trigger recomputation successfully', async () => {
+      // recomputeCounts uses apiClient.post, which uses fetch internally
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -228,8 +223,9 @@ describe('countsApi', () => {
 
       const result = await countsApi.recomputeCounts(mockPlanId);
 
+      // Verify the URL and method (apiClient adds Content-Type header)
       expect(mockFetch).toHaveBeenCalledWith(
-        `${mockBaseUrl}/plans/${mockPlanId}/counts/recompute`,
+        `${apiClient.baseURL}/plans/${mockPlanId}/counts/recompute`,
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({

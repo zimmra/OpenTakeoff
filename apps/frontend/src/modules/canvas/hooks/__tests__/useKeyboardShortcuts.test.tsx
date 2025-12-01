@@ -4,47 +4,49 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { ReactNode } from 'react';
 import { useCanvasKeyboardShortcuts } from '../useKeyboardShortcuts';
-import { useViewportActions } from '../../contexts/ViewportContext';
 
-// Mock the viewport actions
+// Create mock functions outside beforeEach for stable references
+const mockZoomIn = vi.fn();
+const mockZoomOut = vi.fn();
+const mockFitToViewport = vi.fn();
+const mockResetZoom = vi.fn();
+const mockPan = vi.fn();
+
+// Mock the viewport context to return our mock functions
 vi.mock('../../contexts/ViewportContext', () => ({
-  useViewportActions: vi.fn(() => ({
-    zoomIn: vi.fn(),
-    zoomOut: vi.fn(),
-    fitToViewport: vi.fn(),
-    resetZoom: vi.fn(),
-    pan: vi.fn(),
-  })),
+  useViewportActions: () => ({
+    zoomIn: mockZoomIn,
+    zoomOut: mockZoomOut,
+    fitToViewport: mockFitToViewport,
+    resetZoom: mockResetZoom,
+    pan: mockPan,
+    setCamera: vi.fn(),
+    setZoom: vi.fn(),
+    setViewportDimensions: vi.fn(),
+    setDocumentBounds: vi.fn(),
+    zoomToSelection: vi.fn(),
+  }),
+  ViewportProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 describe('useCanvasKeyboardShortcuts', () => {
-  let mockZoomIn: ReturnType<typeof vi.fn>;
-  let mockZoomOut: ReturnType<typeof vi.fn>;
-  let mockFitToViewport: ReturnType<typeof vi.fn>;
-  let mockResetZoom: ReturnType<typeof vi.fn>;
-  let mockPan: ReturnType<typeof vi.fn>;
   let mockOnToolChange: ReturnType<typeof vi.fn>;
   let mockOnDelete: ReturnType<typeof vi.fn>;
   let mockOnToggleHelp: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockZoomIn = vi.fn();
-    mockZoomOut = vi.fn();
-    mockFitToViewport = vi.fn();
-    mockResetZoom = vi.fn();
-    mockPan = vi.fn();
     mockOnToolChange = vi.fn();
     mockOnDelete = vi.fn();
     mockOnToggleHelp = vi.fn();
 
-    vi.mocked(useViewportActions).mockReturnValue({
-      zoomIn: mockZoomIn,
-      zoomOut: mockZoomOut,
-      fitToViewport: mockFitToViewport,
-      resetZoom: mockResetZoom,
-      pan: mockPan,
-    } as any);
+    // Clear all mock implementations
+    mockZoomIn.mockClear();
+    mockZoomOut.mockClear();
+    mockFitToViewport.mockClear();
+    mockResetZoom.mockClear();
+    mockPan.mockClear();
   });
 
   afterEach(() => {
