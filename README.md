@@ -186,10 +186,6 @@ docker compose down -v
 docker compose up -d
 ```
 
-## Contributing
-
-See [CLAUDE.md](./CLAUDE.md) for development guidelines and architecture decisions.
-
 ## License
 
 See [LICENSE](./LICENSE) file for details.
