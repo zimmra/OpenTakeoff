@@ -185,6 +185,66 @@ describe('Routing Configuration', () => {
       const breadcrumbNav = screen.queryByRole('navigation', { name: /breadcrumb/i });
       expect(breadcrumbNav).not.toBeInTheDocument();
     });
+
+    it('should handle mixed routes where some have handles and others do not', async () => {
+      // This tests the edge case where some matched routes have undefined handles
+      // which previously caused: "Cannot read properties of undefined (reading 'breadcrumb')"
+      const memoryRouter = createMemoryRouter(
+        [
+          {
+            path: '/',
+            element: <App />,
+            // Note: root route has NO handle property (undefined)
+            children: [
+              {
+                index: true,
+                // Index route also has NO handle
+                element: <div>Home</div>,
+              },
+              {
+                path: 'projects',
+                handle: { breadcrumb: () => 'Projects' },
+                children: [
+                  {
+                    index: true,
+                    element: <div>Projects List</div>,
+                  },
+                  {
+                    path: ':projectId',
+                    // Note: this route has NO handle, but parent does
+                    children: [
+                      {
+                        index: true,
+                        element: <div>Project Detail</div>,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        { initialEntries: ['/projects/123'] }
+      );
+
+      render(
+        <StrictMode>
+          <QueryClientProvider client={testQueryClient}>
+            <RouterProvider router={memoryRouter} />
+          </QueryClientProvider>
+        </StrictMode>
+      );
+
+      // Should render without throwing an error
+      await waitFor(() => {
+        expect(screen.getByText('Project Detail')).toBeInTheDocument();
+      });
+
+      // Should still show breadcrumbs from routes that have them
+      const breadcrumbNav = screen.getByRole('navigation', { name: /breadcrumb/i });
+      expect(breadcrumbNav).toBeInTheDocument();
+      expect(within(breadcrumbNav).getByText('Projects')).toBeInTheDocument();
+    });
   });
 
   describe('Suspense Boundaries', () => {
