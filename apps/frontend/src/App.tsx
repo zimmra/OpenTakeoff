@@ -9,15 +9,15 @@ import type { UIMatch } from 'react-router-dom';
 function Breadcrumbs() {
   const matches = useMatches() as UIMatch<unknown, { breadcrumb?: (match: UIMatch) => React.ReactNode } | undefined>[];
 
-  // Filter matches that have breadcrumb metadata
+  // Filter matches that have breadcrumb metadata and map to crumb objects
   const crumbs = matches
-    .flatMap((match) => {
-      if (!match.handle?.breadcrumb) return [];
-      return [{
-        label: match.handle.breadcrumb(match),
-        pathname: match.pathname,
-      }];
-    });
+    .filter((match): match is UIMatch<unknown, { breadcrumb: (match: UIMatch) => React.ReactNode }> =>
+      match.handle != null && typeof match.handle.breadcrumb === 'function'
+    )
+    .map((match) => ({
+      label: match.handle.breadcrumb(match),
+      pathname: match.pathname,
+    }));
 
   // Don't render breadcrumbs if there are none
   if (crumbs.length === 0) {
