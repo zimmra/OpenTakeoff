@@ -5,11 +5,11 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useCanvasKeyboardShortcuts } from '../useKeyboardShortcuts';
-import { useViewportStore } from '../../stores/useViewportStore';
+import { useViewportActions } from '../../contexts/ViewportContext';
 
-// Mock the viewport store
-vi.mock('../../stores/useViewportStore', () => ({
-  useViewportStore: vi.fn(() => ({
+// Mock the viewport actions
+vi.mock('../../contexts/ViewportContext', () => ({
+  useViewportActions: vi.fn(() => ({
     zoomIn: vi.fn(),
     zoomOut: vi.fn(),
     fitToViewport: vi.fn(),
@@ -38,7 +38,7 @@ describe('useCanvasKeyboardShortcuts', () => {
     mockOnDelete = vi.fn();
     mockOnToggleHelp = vi.fn();
 
-    vi.mocked(useViewportStore).mockReturnValue({
+    vi.mocked(useViewportActions).mockReturnValue({
       zoomIn: mockZoomIn,
       zoomOut: mockZoomOut,
       fitToViewport: mockFitToViewport,
