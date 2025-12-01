@@ -78,6 +78,13 @@ pnpm format           # Format code with Prettier
 pnpm clean            # Remove dist folders and node_modules
 ```
 
+**Targeting specific packages:** Use `--filter` to run commands in a specific workspace:
+```bash
+pnpm --filter @opentakeoff/frontend dev      # Run only frontend dev server
+pnpm --filter @opentakeoff/backend test      # Run only backend tests
+pnpm --filter @opentakeoff/frontend build    # Build only frontend
+```
+
 ### Backend Commands (`apps/backend`)
 ```bash
 pnpm dev              # Run with tsx watch (hot reload)
