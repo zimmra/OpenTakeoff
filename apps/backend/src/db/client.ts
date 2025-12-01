@@ -54,9 +54,9 @@ export function migrateDatabase(db: BetterSQLite3Database<typeof schema>) {
   // In both src/db/client.ts (dev) and dist/db/client.js (prod),
   // the drizzle folder is at ../../drizzle relative to this file
   const migrationsFolder = resolve(__dirname, '../../drizzle');
-  
+
   console.log('Running migrations from:', migrationsFolder);
-  
+
   migrate(db, { migrationsFolder });
 }
 
