@@ -222,6 +222,17 @@ export async function planRoutes(
         // Get file size
         const fileSize = pdfBytes.length;
 
+        // Determine next page number for this project
+        const existingPlanCounts = await db
+          .select()
+          .from(schema.plans)
+          .where(eq(schema.plans.projectId, projectId));
+
+        const maxPageNumber = existingPlanCounts.reduce((max, plan) =>
+          Math.max(max, plan.pageNumber), 0
+        );
+        const nextPageNumber = maxPageNumber + 1;
+
         // Insert plan into database
         const [plan] = await db
           .insert(schema.plans)
@@ -229,7 +240,7 @@ export async function planRoutes(
             id: planId,
             projectId,
             name: data.filename || 'Untitled Plan',
-            pageNumber: 1, // Default page number (can be updated later)
+            pageNumber: nextPageNumber,
             pageCount,
             filePath,
             fileSize,

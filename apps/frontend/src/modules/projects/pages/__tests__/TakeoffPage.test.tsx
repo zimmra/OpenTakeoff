@@ -83,15 +83,16 @@ vi.mock('../../../pdf/PdfThumbnailSidebar', () => ({
 vi.mock('../../../pdf/PdfCanvas', () => ({
   PdfCanvas: () => <div data-testid="pdf-canvas">PDF Canvas</div>,
 }));
-vi.mock('../../../stamps/components/StampToolbar', () => ({
-  StampToolbar: ({ showPlacementToggle }: { showPlacementToggle?: boolean }) => (
-    <div data-testid="stamp-toolbar" data-show-placement={showPlacementToggle}>
-      Stamp Toolbar
+vi.mock('../../../canvas/components/Toolbar', () => ({
+  Toolbar: ({ extraActions }: { extraActions?: React.ReactNode }) => (
+    <div data-testid="toolbar">
+      <div data-testid="location-toolbar">Location Toolbar</div>
+      <div data-testid="stamp-toolbar" data-show-placement="false">
+        Stamp Toolbar
+      </div>
+      {extraActions}
     </div>
   ),
-}));
-vi.mock('../../../locations/components/LocationToolbar', () => ({
-  LocationToolbar: () => <div data-testid="location-toolbar">Location Toolbar</div>,
 }));
 vi.mock('../../../history/components/HistoryTimeline', () => ({
   HistoryTimeline: ({ projectId }: { projectId: string }) => (

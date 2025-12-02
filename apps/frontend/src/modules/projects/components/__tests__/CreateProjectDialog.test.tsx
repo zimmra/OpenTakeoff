@@ -70,7 +70,9 @@ describe('CreateProjectDialog', () => {
 
       const descInput = screen.getByLabelText(/description/i);
       const longDesc = 'a'.repeat(501);
-      await user.type(descInput, longDesc);
+      // Use paste instead of type for long strings to avoid timeout
+      await user.click(descInput);
+      await user.paste(longDesc);
 
       const nextButton = screen.getByText('Next: Upload PDF');
       await user.click(nextButton);
@@ -114,7 +116,8 @@ describe('CreateProjectDialog', () => {
       user = userEvent.setup();
       render(<CreateProjectDialog {...defaultProps} />);
 
-      const nameInput = screen.getByLabelText(/project name/i);
+      const nameInput = screen.getByLabelText(/project name/i) as HTMLInputElement;
+      await user.clear(nameInput);
       await user.type(nameInput, 'Test Project');
 
       const nextButton = screen.getByText('Next: Upload PDF');
