@@ -39,3 +39,8 @@ apps/backend/data/sqlite/
 .claude/commands/tm/
 .claude/TM_COMMANDS_GUIDE.md
 .claude/agents/
+
+data/uploads/
+*.tsbuildinfo
+apps/backend/dist/
+apps/frontend/dist/
