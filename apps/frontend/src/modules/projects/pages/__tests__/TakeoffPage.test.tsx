@@ -87,9 +87,6 @@ vi.mock('../../../canvas/components/Toolbar', () => ({
   Toolbar: ({ extraActions }: { extraActions?: React.ReactNode }) => (
     <div data-testid="toolbar">
       <div data-testid="location-toolbar">Location Toolbar</div>
-      <div data-testid="stamp-toolbar" data-show-placement="false">
-        Stamp Toolbar
-      </div>
       {extraActions}
     </div>
   ),
@@ -404,8 +401,7 @@ describe('TakeoffPage', () => {
       renderWithProviders();
 
       expect(screen.getByTestId('location-toolbar')).toBeInTheDocument();
-      expect(screen.getByTestId('stamp-toolbar')).toBeInTheDocument();
-      expect(screen.getByTestId('stamp-toolbar')).toHaveAttribute('data-show-placement', 'false');
+      expect(screen.getByTestId('toolbar')).toBeInTheDocument();
     });
 
     it('should render PDF workspace components', () => {
