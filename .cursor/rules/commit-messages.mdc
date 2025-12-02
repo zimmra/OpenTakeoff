@@ -1,0 +1,52 @@
+---
+description: Conventional commit message format rules
+alwaysApply: true
+---
+
+# Commit Message Format
+
+When generating git commit messages, always follow the Conventional Commits specification:
+
+## Format
+
+```
+<type>: <subject>
+
+[optional body]
+
+[optional footer]
+```
+
+## Allowed Types
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation changes
+- `style` - Code style changes (formatting, etc.)
+- `refactor` - Code refactoring
+- `perf` - Performance improvements
+- `test` - Adding or updating tests
+- `build` - Build system changes
+- `ci` - CI/CD changes
+- `chore` - Other changes that don't modify src or test files
+- `revert` - Reverts a previous commit
+
+## Rules
+1. **Type is required** - Always start with one of the allowed types above
+2. **Subject is required** - Brief description after the colon
+3. **Subject must be lowercase** - Never use uppercase in the subject line
+4. **No period at end of subject** - Don't end the subject line with a period
+5. **Body lines max 100 characters** - Wrap body text at 100 characters
+6. **Blank line between subject and body** - Always separate with an empty line
+7. **Use imperative mood** - "add feature" not "added feature"
+
+## Examples
+
+Good:
+- `feat: add user authentication flow`
+- `fix: resolve memory leak in canvas rendering`
+- `chore: update dependencies to latest versions`
+
+Bad:
+- `Added new feature` - Missing type, past tense, uppercase
+- `feat: Add feature.` - Uppercase, period at end
+- `Updated the code` - Missing type
