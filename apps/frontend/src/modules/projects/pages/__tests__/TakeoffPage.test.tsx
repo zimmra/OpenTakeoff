@@ -84,11 +84,12 @@ vi.mock('../../../pdf/PdfCanvas', () => ({
   PdfCanvas: () => <div data-testid="pdf-canvas">PDF Canvas</div>,
 }));
 vi.mock('../../../stamps/components/StampToolbar', () => ({
-  StampToolbar: ({ showPlacementToggle }: { showPlacementToggle?: boolean }) => (
-    <div data-testid="stamp-toolbar" data-show-placement={showPlacementToggle}>
-      Stamp Toolbar
-    </div>
-  ),
+  StampToolbar: ({ showPlacementToggle }: { showPlacementToggle?: boolean }) =>
+    showPlacementToggle ? (
+      <div data-testid="stamp-toolbar" data-show-placement={showPlacementToggle}>
+        Stamp Toolbar
+      </div>
+    ) : null,
 }));
 vi.mock('../../../locations/components/LocationToolbar', () => ({
   LocationToolbar: () => <div data-testid="location-toolbar">Location Toolbar</div>,
@@ -165,7 +166,7 @@ class ResizeObserverMock {
           devicePixelContentBoxSize: [],
         },
       ],
-      this as any
+      this as any,
     );
   });
   unobserve = vi.fn();
@@ -258,7 +259,7 @@ describe('TakeoffPage', () => {
           window.history.pushState({}, '', initialRoute);
           return <>{children}</>;
         },
-      }
+      },
     );
   };
 
@@ -403,8 +404,8 @@ describe('TakeoffPage', () => {
       renderWithProviders();
 
       expect(screen.getByTestId('location-toolbar')).toBeInTheDocument();
-      expect(screen.getByTestId('stamp-toolbar')).toBeInTheDocument();
-      expect(screen.getByTestId('stamp-toolbar')).toHaveAttribute('data-show-placement', 'false');
+      // StampToolbar is not rendered when showPlacementToggle is false
+      expect(screen.queryByTestId('stamp-toolbar')).not.toBeInTheDocument();
     });
 
     it('should render PDF workspace components', () => {
@@ -451,7 +452,7 @@ describe('TakeoffPage', () => {
         expect(screen.getByTestId('history-timeline')).toBeInTheDocument();
         expect(screen.getByTestId('history-timeline')).toHaveAttribute(
           'data-project-id',
-          'project-1'
+          'project-1',
         );
       });
     });
