@@ -11,14 +11,18 @@
 
 import { useRef, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { PdfDocumentProvider } from '../../pdf/PdfDocumentProvider';
-import { ViewportProvider, useViewportActions, useDocumentBounds } from '../contexts/ViewportContext';
+import {
+  ViewportProvider,
+  useViewportActions,
+  useDocumentBounds,
+} from '../contexts/ViewportContext';
 import { PdfThumbnailSidebar } from '../../pdf/PdfThumbnailSidebar';
 import { PdfCanvas } from '../../pdf/PdfCanvas';
+import { SnapGridControls } from '../../stamps/components/SnapGridControls';
 import { KonvaLayer } from './KonvaLayer';
 import { UIOverlays } from './UIOverlays';
 import { Toolbar } from './Toolbar';
 import { CanvasHeader } from './CanvasHeader';
-import { ZoomControls } from './ZoomControls';
 import { MiniMap } from './MiniMap';
 import { KeyboardHelpPanel } from './KeyboardHelpPanel';
 import { SettingsModal } from './SettingsModal';
@@ -55,7 +59,7 @@ export interface TakeoffCanvasProps {
   onLocationCreated?: (
     shape:
       | { type: 'rectangle'; bounds: { x: number; y: number; width: number; height: number } }
-      | { type: 'polygon'; vertices: Point[] }
+      | { type: 'polygon'; vertices: Point[] },
   ) => void;
 }
 
@@ -122,7 +126,7 @@ function TakeoffCanvasInner({
     if (documentBounds && documentBounds.pages.length > 0) {
       const firstPage = documentBounds.pages[0];
       if (firstPage) {
-        setDocumentDimensions(prev => {
+        setDocumentDimensions((prev) => {
           if (prev.width === firstPage.width && prev.height === firstPage.height) {
             return prev;
           }
@@ -181,25 +185,15 @@ function TakeoffCanvasInner({
             onSettingsClick={() => setIsSettingsOpen(true)}
           />
         }
-        toolbar={
-          <Toolbar
-            extraActions={toolbarRightActions}
-          />
-        }
-        zoomControls={
-          <ZoomControls />
-        }
-        leftSidebar={
-          <PdfThumbnailSidebar />
-        }
+        toolbar={<Toolbar extraActions={toolbarRightActions} />}
+        zoomControls={null}
+        leftSidebar={<PdfThumbnailSidebar />}
         rightPanel={showRightPanel ? rightPanel : undefined}
+        bottomRightControls={<SnapGridControls />}
         miniMap={<MiniMap />}
         helpPanel={
           isHelpPanelOpen ? (
-            <KeyboardHelpPanel
-              isOpen={isHelpPanelOpen}
-              onClose={() => setIsHelpPanelOpen(false)}
-            />
+            <KeyboardHelpPanel isOpen={isHelpPanelOpen} onClose={() => setIsHelpPanelOpen(false)} />
           ) : undefined
         }
       >
@@ -213,26 +207,26 @@ function TakeoffCanvasInner({
           </ErrorBoundary>
 
           {/* Konva Layer - handles all pan/zoom gestures */}
-          {containerSize.width > 0 && containerSize.height > 0 && documentDimensions.width > 0 && documentDimensions.height > 0 && (
-            <ErrorBoundary name="Konva Layer">
-              <KonvaLayer
-                planId={planId}
-                projectId={projectId}
-                width={containerSize.width}
-                height={containerSize.height}
-                documentWidth={documentDimensions.width}
-                documentHeight={documentDimensions.height}
-                {...(activeDeviceId && { activeDeviceId })}
-                {...(onLocationCreated && { onLocationCreated })}
-              />
-            </ErrorBoundary>
-          )}
+          {containerSize.width > 0 &&
+            containerSize.height > 0 &&
+            documentDimensions.width > 0 &&
+            documentDimensions.height > 0 && (
+              <ErrorBoundary name="Konva Layer">
+                <KonvaLayer
+                  planId={planId}
+                  projectId={projectId}
+                  width={containerSize.width}
+                  height={containerSize.height}
+                  documentWidth={documentDimensions.width}
+                  documentHeight={documentDimensions.height}
+                  {...(activeDeviceId && { activeDeviceId })}
+                  {...(onLocationCreated && { onLocationCreated })}
+                />
+              </ErrorBoundary>
+            )}
         </div>
       </UIOverlays>
-      <SettingsModal
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-      />
+      <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
     </div>
   );
 }
@@ -242,10 +236,7 @@ function TakeoffCanvasInner({
  *
  * Wraps the canvas stack with ViewportProvider and PdfDocumentProvider.
  */
-export function TakeoffCanvas({
-  pdfUrl,
-  ...props
-}: TakeoffCanvasProps) {
+export function TakeoffCanvas({ pdfUrl, ...props }: TakeoffCanvasProps) {
   return (
     <ViewportProvider>
       <PdfDocumentProvider initialUrl={pdfUrl}>

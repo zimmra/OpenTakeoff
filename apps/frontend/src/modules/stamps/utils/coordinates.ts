@@ -23,9 +23,9 @@ export interface GridSizeOption {
  * Free placement option (no snapping)
  */
 export const FREE_PLACEMENT_OPTION: GridSizeOption = {
-  label: 'Free Placement',
+  label: 'Off',
   size: 0,
-  description: 'No snapping'
+  description: 'No snapping',
 };
 
 /**
@@ -54,11 +54,7 @@ export const DEFAULT_GRID_SIZE = 18;
  * @param gridSize - Grid cell size in world units
  * @returns Snapped coordinates
  */
-export function snapToGrid(
-  x: number,
-  y: number,
-  gridSize: number
-): { x: number; y: number } {
+export function snapToGrid(x: number, y: number, gridSize: number): { x: number; y: number } {
   return {
     x: Math.round(x / gridSize) * gridSize,
     y: Math.round(y / gridSize) * gridSize,
@@ -71,10 +67,7 @@ export function snapToGrid(
  * @param ppi - Points per inch for PDF (default: 72)
  * @returns Grid spacing in world units (PDF points)
  */
-export function calculateGridSpacing(
-  majorGridInches = 12,
-  ppi = 72
-): number {
+export function calculateGridSpacing(majorGridInches = 12, ppi = 72): number {
   // Convert inches to PDF points (world units)
   return majorGridInches * ppi;
 }
@@ -110,7 +103,7 @@ export function pageToWorld(
   pageNumber: number,
   localX: number,
   localY: number,
-  pageMetadata: PageMetadata[]
+  pageMetadata: PageMetadata[],
 ): { x: number; y: number } | null {
   const page = pageMetadata.find((p) => p.pageNumber === pageNumber);
   if (!page) {
@@ -138,7 +131,7 @@ export function pageToWorld(
 export function worldToPage(
   worldX: number,
   worldY: number,
-  pageMetadata: PageMetadata[]
+  pageMetadata: PageMetadata[],
 ): { page: number; x: number; y: number } | null {
   // Find which page this world coordinate falls on
   for (const pageMeta of pageMetadata) {
@@ -174,7 +167,7 @@ export function worldToPage(
  */
 export function getPageMetadata(
   pageNumber: number,
-  pageMetadata: PageMetadata[]
+  pageMetadata: PageMetadata[],
 ): PageMetadata | null {
   return pageMetadata.find((p) => p.pageNumber === pageNumber) ?? null;
 }

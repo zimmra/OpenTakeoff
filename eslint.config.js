@@ -72,7 +72,7 @@ export default tseslint.config(
 
   // Disable type checking for config files
   {
-    files: ['**/*.config.{js,ts,mjs,cjs}'],
+    files: ['**/*.config.{js,ts,mjs,cjs}', 'vitest.workspace.ts'],
     ...tseslint.configs.disableTypeChecked,
   },
 

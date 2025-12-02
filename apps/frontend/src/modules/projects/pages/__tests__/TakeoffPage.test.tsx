@@ -404,8 +404,8 @@ describe('TakeoffPage', () => {
       renderWithProviders();
 
       expect(screen.getByTestId('location-toolbar')).toBeInTheDocument();
-      expect(screen.getByTestId('stamp-toolbar')).toBeInTheDocument();
-      expect(screen.getByTestId('stamp-toolbar')).toHaveAttribute('data-show-placement', 'false');
+      // StampToolbar is not rendered when showPlacementToggle is false
+      expect(screen.queryByTestId('stamp-toolbar')).not.toBeInTheDocument();
     });
 
     it('should render PDF workspace components', () => {
