@@ -31,8 +31,11 @@ msg.txt
 /.tmp
 .serena/
 .taskmaster/
-.cursor/
 .mcp.json
 
 apps/backend/data/uploads/
 apps/backend/data/sqlite/
+.cursor/worktrees.json
+.claude/commands/tm/
+.claude/TM_COMMANDS_GUIDE.md
+.claude/agents/
