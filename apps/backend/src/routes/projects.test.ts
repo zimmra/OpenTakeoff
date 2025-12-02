@@ -9,8 +9,13 @@ import Fastify from 'fastify';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { projectRoutes } from './projects.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const migrationsFolder = resolve(__dirname, '../../drizzle');
 
 // Mock the database client module
 let testDb: ReturnType<typeof drizzle>;
@@ -30,7 +35,7 @@ describe('Project Routes', () => {
     testSqlite.pragma('foreign_keys = ON');
 
     testDb = drizzle(testSqlite, { schema });
-    migrate(testDb, { migrationsFolder: './drizzle' });
+    migrate(testDb, { migrationsFolder });
   });
 
   beforeEach(async () => {
@@ -432,18 +437,21 @@ describe('Project Routes', () => {
       const created = JSON.parse(createResponse.body);
 
       // Insert a plan directly into the database
-      testDb.insert(schema.plans).values({
-        id: 'test-plan',
-        projectId: created.id,
-        name: 'Test Plan',
-        pageNumber: 1,
-        pageCount: 1,
-        filePath: '/test/path.pdf',
-        fileSize: 1000,
-        fileHash: 'abc123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).run();
+      testDb
+        .insert(schema.plans)
+        .values({
+          id: 'test-plan',
+          projectId: created.id,
+          name: 'Test Plan',
+          pageNumber: 1,
+          pageCount: 1,
+          filePath: '/test/path.pdf',
+          fileSize: 1000,
+          fileHash: 'abc123',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .run();
 
       // Delete project
       const deleteResponse = await server.inject({
@@ -558,35 +566,41 @@ describe('Project Routes', () => {
       const created = JSON.parse(createResponse.body);
 
       // Add plans directly to database
-      testDb.insert(schema.plans).values({
-        id: 'plan-1',
-        projectId: created.id,
-        name: 'Plan 1',
-        pageNumber: 1,
-        pageCount: 3,
-        filePath: '/test/plan1.pdf',
-        fileSize: 1024000,
-        fileHash: 'hash1',
-        width: 800,
-        height: 600,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).run();
+      testDb
+        .insert(schema.plans)
+        .values({
+          id: 'plan-1',
+          projectId: created.id,
+          name: 'Plan 1',
+          pageNumber: 1,
+          pageCount: 3,
+          filePath: '/test/plan1.pdf',
+          fileSize: 1024000,
+          fileHash: 'hash1',
+          width: 800,
+          height: 600,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .run();
 
-      testDb.insert(schema.plans).values({
-        id: 'plan-2',
-        projectId: created.id,
-        name: 'Plan 2',
-        pageNumber: 2,
-        pageCount: 2,
-        filePath: '/test/plan2.pdf',
-        fileSize: 512000,
-        fileHash: 'hash2',
-        width: 1024,
-        height: 768,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).run();
+      testDb
+        .insert(schema.plans)
+        .values({
+          id: 'plan-2',
+          projectId: created.id,
+          name: 'Plan 2',
+          pageNumber: 2,
+          pageCount: 2,
+          filePath: '/test/plan2.pdf',
+          fileSize: 512000,
+          fileHash: 'hash2',
+          width: 1024,
+          height: 768,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .run();
 
       // Get plans
       const response = await server.inject({
@@ -620,18 +634,21 @@ describe('Project Routes', () => {
 
       // Add 5 plans
       for (let i = 1; i <= 5; i++) {
-        testDb.insert(schema.plans).values({
-          id: `plan-${i}`,
-          projectId: created.id,
-          name: `Plan ${i}`,
-          pageNumber: i,
-          pageCount: 1,
-          filePath: `/test/plan${i}.pdf`,
-          fileSize: 1000 * i,
-          fileHash: `hash${i}`,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }).run();
+        testDb
+          .insert(schema.plans)
+          .values({
+            id: `plan-${i}`,
+            projectId: created.id,
+            name: `Plan ${i}`,
+            pageNumber: i,
+            pageCount: 1,
+            filePath: `/test/plan${i}.pdf`,
+            fileSize: 1000 * i,
+            fileHash: `hash${i}`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .run();
       }
 
       // Get first page
@@ -711,31 +728,37 @@ describe('Project Routes', () => {
       const project2 = JSON.parse(project2Response.body);
 
       // Add plans to both projects
-      testDb.insert(schema.plans).values({
-        id: 'plan-p1-1',
-        projectId: project1.id,
-        name: 'Project 1 Plan 1',
-        pageNumber: 1,
-        pageCount: 1,
-        filePath: '/test/p1-1.pdf',
-        fileSize: 1000,
-        fileHash: 'hash-p1-1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).run();
+      testDb
+        .insert(schema.plans)
+        .values({
+          id: 'plan-p1-1',
+          projectId: project1.id,
+          name: 'Project 1 Plan 1',
+          pageNumber: 1,
+          pageCount: 1,
+          filePath: '/test/p1-1.pdf',
+          fileSize: 1000,
+          fileHash: 'hash-p1-1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .run();
 
-      testDb.insert(schema.plans).values({
-        id: 'plan-p2-1',
-        projectId: project2.id,
-        name: 'Project 2 Plan 1',
-        pageNumber: 1,
-        pageCount: 1,
-        filePath: '/test/p2-1.pdf',
-        fileSize: 1000,
-        fileHash: 'hash-p2-1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).run();
+      testDb
+        .insert(schema.plans)
+        .values({
+          id: 'plan-p2-1',
+          projectId: project2.id,
+          name: 'Project 2 Plan 1',
+          pageNumber: 1,
+          pageCount: 1,
+          filePath: '/test/p2-1.pdf',
+          fileSize: 1000,
+          fileHash: 'hash-p2-1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .run();
 
       // Get plans for project 1
       const response = await server.inject({
@@ -867,18 +890,21 @@ describe('Project Routes', () => {
 
         // Add 5 plans
         for (let i = 1; i <= 5; i++) {
-          testDb.insert(schema.plans).values({
-            id: `plan-${i}`,
-            projectId: project.id,
-            name: `Plan ${i}`,
-            pageNumber: i,
-            pageCount: 1,
-            filePath: `/test/plan${i}.pdf`,
-            fileSize: 1000,
-            fileHash: `hash${i}`,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          }).run();
+          testDb
+            .insert(schema.plans)
+            .values({
+              id: `plan-${i}`,
+              projectId: project.id,
+              name: `Plan ${i}`,
+              pageNumber: i,
+              pageCount: 1,
+              filePath: `/test/plan${i}.pdf`,
+              fileSize: 1000,
+              fileHash: `hash${i}`,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            })
+            .run();
         }
 
         // Get first page
@@ -914,18 +940,21 @@ describe('Project Routes', () => {
 
         // Add 2 plans
         for (let i = 1; i <= 2; i++) {
-          testDb.insert(schema.plans).values({
-            id: `plan-${i}`,
-            projectId: project.id,
-            name: `Plan ${i}`,
-            pageNumber: i,
-            pageCount: 1,
-            filePath: `/test/plan${i}.pdf`,
-            fileSize: 1000,
-            fileHash: `hash${i}`,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          }).run();
+          testDb
+            .insert(schema.plans)
+            .values({
+              id: `plan-${i}`,
+              projectId: project.id,
+              name: `Plan ${i}`,
+              pageNumber: i,
+              pageCount: 1,
+              filePath: `/test/plan${i}.pdf`,
+              fileSize: 1000,
+              fileHash: `hash${i}`,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            })
+            .run();
         }
 
         // Get all plans
