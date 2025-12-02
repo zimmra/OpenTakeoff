@@ -8,7 +8,7 @@ import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { config, isDev } from '../config.js';
 import * as schema from './schema.js';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -25,6 +25,64 @@ async function ensureDatabaseDirectory() {
       throw error;
     }
   }
+}
+
+/**
+ * Check if database is in an inconsistent state where tables exist
+ * but migrations aren't tracked. This happens when db:push was used
+ * instead of migrations, or when the migrations table was reset.
+ */
+function checkMigrationConsistency(sqlite: Database.Database): {
+  isInconsistent: boolean;
+  hasProjectsTable: boolean;
+  hasMigrationsTracked: boolean;
+} {
+  // Check if projects table exists (our first migration creates this)
+  const projectsTableExists = sqlite
+    .prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='projects'`)
+    .get() as { name: string } | undefined;
+
+  // Check if migrations tracking table has any entries
+  const migrationsTableExists = sqlite
+    .prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='__drizzle_migrations'`)
+    .get() as { name: string } | undefined;
+
+  let migrationsCount = 0;
+  if (migrationsTableExists) {
+    const result = sqlite.prepare(`SELECT COUNT(*) as count FROM "__drizzle_migrations"`).get() as {
+      count: number;
+    };
+    migrationsCount = result.count;
+  }
+
+  const hasProjectsTable = !!projectsTableExists;
+  const hasMigrationsTracked = migrationsCount > 0;
+
+  // Inconsistent state: tables exist but migrations aren't tracked
+  const isInconsistent = hasProjectsTable && !hasMigrationsTracked;
+
+  return { isInconsistent, hasProjectsTable, hasMigrationsTracked };
+}
+
+/**
+ * Reset database by deleting all files. Used in development to recover
+ * from inconsistent migration state.
+ */
+async function resetDatabase(sqlite: Database.Database): Promise<void> {
+  console.log('🔄 Resetting database due to inconsistent migration state...');
+
+  // Close the current connection
+  sqlite.close();
+
+  // Delete database files
+  const dbPath = config.DATABASE_PATH;
+  await Promise.all([
+    rm(dbPath, { force: true }),
+    rm(`${dbPath}-shm`, { force: true }),
+    rm(`${dbPath}-wal`, { force: true }),
+  ]);
+
+  console.log('✅ Database reset complete. Migrations will run fresh.');
 }
 
 /**
@@ -73,7 +131,31 @@ export interface DatabaseInstance {
  */
 export async function initializeDatabase(): Promise<DatabaseInstance> {
   await ensureDatabaseDirectory();
-  const sqlite = createSqliteConnection();
+  let sqlite = createSqliteConnection();
+
+  // Check for inconsistent migration state (tables exist but not tracked)
+  const consistency = checkMigrationConsistency(sqlite);
+
+  if (consistency.isInconsistent) {
+    if (isDev) {
+      console.warn(
+        '⚠️  Database has tables but no migration tracking. ' +
+          'This usually happens when db:push was used instead of migrations.',
+      );
+      await resetDatabase(sqlite);
+      // Recreate connection after reset
+      sqlite = createSqliteConnection();
+    } else {
+      throw new Error(
+        'Database is in an inconsistent state: tables exist but migrations are not tracked. ' +
+          'This can happen if db:push was used instead of migrations. ' +
+          'In production, please either:\n' +
+          '1. Delete the database and let migrations recreate it, or\n' +
+          '2. Manually mark migrations as applied in __drizzle_migrations table.',
+      );
+    }
+  }
+
   const db = drizzle(sqlite, { schema });
 
   // Run migrations on startup
