@@ -3,7 +3,12 @@
  * Handles PDF plan upload, metadata extraction, and deletion
  */
 
-import { type FastifyInstance, type FastifyPluginOptions, type FastifyRequest, type FastifyReply } from 'fastify';
+import {
+  type FastifyInstance,
+  type FastifyPluginOptions,
+  type FastifyRequest,
+  type FastifyReply,
+} from 'fastify';
 import { PDFDocument } from 'pdf-lib';
 import { pipeline } from 'node:stream/promises';
 import { createWriteStream, createReadStream } from 'node:fs';
@@ -12,11 +17,7 @@ import { randomUUID } from 'node:crypto';
 import { getDatabase } from '../db/client.js';
 import * as schema from '../db/schema.js';
 import { eq } from 'drizzle-orm';
-import {
-  getPdfPath,
-  ensureProjectDir,
-  computeFileHash,
-} from '../services/storage/pdfStorage.js';
+import { getPdfPath, ensureProjectDir, computeFileHash } from '../services/storage/pdfStorage.js';
 
 /**
  * Plan upload request params
@@ -222,6 +223,18 @@ export async function planRoutes(
         // Get file size
         const fileSize = pdfBytes.length;
 
+        // Determine next page number for this project
+        const existingPlanCounts = await db
+          .select()
+          .from(schema.plans)
+          .where(eq(schema.plans.projectId, projectId));
+
+        const maxPageNumber = existingPlanCounts.reduce(
+          (max, plan) => Math.max(max, plan.pageNumber),
+          0,
+        );
+        const nextPageNumber = maxPageNumber + 1;
+
         // Insert plan into database
         const [plan] = await db
           .insert(schema.plans)
@@ -229,7 +242,7 @@ export async function planRoutes(
             id: planId,
             projectId,
             name: data.filename || 'Untitled Plan',
-            pageNumber: 1, // Default page number (can be updated later)
+            pageNumber: nextPageNumber,
             pageCount,
             filePath,
             fileSize,
@@ -339,7 +352,7 @@ export async function planRoutes(
         ...plan,
         filePath: undefined,
       };
-    }
+    },
   );
 
   /**
@@ -401,7 +414,7 @@ export async function planRoutes(
       try {
         // Check if file exists
         await stat(plan.filePath);
-        
+
         // Stream the file
         const stream = createReadStream(plan.filePath);
         reply.type('application/pdf');
@@ -410,7 +423,7 @@ export async function planRoutes(
         fastify.log.error({ error, filePath: plan.filePath }, 'Failed to read plan file');
         return reply.code(404).send({ error: 'Plan file not found' });
       }
-    }
+    },
   );
 
   /**

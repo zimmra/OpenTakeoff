@@ -83,16 +83,13 @@ vi.mock('../../../pdf/PdfThumbnailSidebar', () => ({
 vi.mock('../../../pdf/PdfCanvas', () => ({
   PdfCanvas: () => <div data-testid="pdf-canvas">PDF Canvas</div>,
 }));
-vi.mock('../../../stamps/components/StampToolbar', () => ({
-  StampToolbar: ({ showPlacementToggle }: { showPlacementToggle?: boolean }) =>
-    showPlacementToggle ? (
-      <div data-testid="stamp-toolbar" data-show-placement={showPlacementToggle}>
-        Stamp Toolbar
-      </div>
-    ) : null,
-}));
-vi.mock('../../../locations/components/LocationToolbar', () => ({
-  LocationToolbar: () => <div data-testid="location-toolbar">Location Toolbar</div>,
+vi.mock('../../../canvas/components/Toolbar', () => ({
+  Toolbar: ({ extraActions }: { extraActions?: React.ReactNode }) => (
+    <div data-testid="toolbar">
+      <div data-testid="location-toolbar">Location Toolbar</div>
+      {extraActions}
+    </div>
+  ),
 }));
 vi.mock('../../../history/components/HistoryTimeline', () => ({
   HistoryTimeline: ({ projectId }: { projectId: string }) => (
@@ -404,8 +401,7 @@ describe('TakeoffPage', () => {
       renderWithProviders();
 
       expect(screen.getByTestId('location-toolbar')).toBeInTheDocument();
-      // StampToolbar is not rendered when showPlacementToggle is false
-      expect(screen.queryByTestId('stamp-toolbar')).not.toBeInTheDocument();
+      expect(screen.getByTestId('toolbar')).toBeInTheDocument();
     });
 
     it('should render PDF workspace components', () => {
