@@ -4,8 +4,7 @@ import { resolve } from 'path';
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node',
-    include: ['**/*.test.ts', '**/*.spec.ts'],
+    include: ['apps/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
     coverage: {
       provider: 'v8',
