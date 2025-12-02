@@ -110,10 +110,8 @@ describe('CreateProjectDialog', () => {
   });
 
   describe('Step 2: PDF Upload', () => {
-    let user: ReturnType<typeof userEvent.setup>;
-
-    beforeEach(async () => {
-      user = userEvent.setup();
+    async function navigateToUploadStep() {
+      const user = userEvent.setup();
       render(<CreateProjectDialog {...defaultProps} />);
 
       const nameInput = screen.getByLabelText(/project name/i);
@@ -126,14 +124,23 @@ describe('CreateProjectDialog', () => {
       await waitFor(() => {
         expect(screen.getByText('Upload PDF Plan')).toBeInTheDocument();
       });
+
+      return user;
+    }
+
+    beforeEach(() => {
+      // Ensure clean state between tests
+      vi.clearAllMocks();
     });
 
-    it('should render upload drop zone', () => {
+    it('should render upload drop zone', async () => {
+      await navigateToUploadStep();
       expect(screen.getByText(/Drop your PDF here or click to browse/i)).toBeInTheDocument();
       expect(screen.getByText(/PDF files up to 100MB/i)).toBeInTheDocument();
     });
 
     it('should show error for non-PDF files', async () => {
+      const user = await navigateToUploadStep();
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
       const container = screen.getByText(/Drop your PDF here/i).closest('div');
       const input = container?.querySelector('input[type="file"]') as HTMLInputElement;
@@ -147,6 +154,7 @@ describe('CreateProjectDialog', () => {
     });
 
     it('should show error for files over 100MB', async () => {
+      const user = await navigateToUploadStep();
       // Create a file mock that reports size over 100MB
       const largeFile = new File(['content'], 'large.pdf', { type: 'application/pdf' });
       Object.defineProperty(largeFile, 'size', { value: 101 * 1024 * 1024 });
@@ -163,6 +171,7 @@ describe('CreateProjectDialog', () => {
     });
 
     it('should accept valid PDF file', async () => {
+      const user = await navigateToUploadStep();
       const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
 
       const container = screen.getByText(/Drop your PDF here/i).closest('div');
@@ -177,6 +186,7 @@ describe('CreateProjectDialog', () => {
     });
 
     it('should allow removing selected file', async () => {
+      const user = await navigateToUploadStep();
       const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
 
       const container = screen.getByText(/Drop your PDF here/i).closest('div');
@@ -200,7 +210,7 @@ describe('CreateProjectDialog', () => {
     });
 
     it('should allow going back to details step', async () => {
-      const user = userEvent.setup();
+      const user = await navigateToUploadStep();
 
       const backButton = screen.getByText('Back');
       await user.click(backButton);
@@ -212,6 +222,7 @@ describe('CreateProjectDialog', () => {
     });
 
     it('should allow skipping upload', async () => {
+      const user = await navigateToUploadStep();
       mockOnSubmit.mockResolvedValue(undefined);
 
       const skipButton = screen.getByText('Skip Upload');
@@ -223,6 +234,7 @@ describe('CreateProjectDialog', () => {
     });
 
     it('should submit with PDF when create button is clicked', async () => {
+      const user = await navigateToUploadStep();
       const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
       mockOnSubmit.mockResolvedValue(undefined);
 
@@ -245,7 +257,8 @@ describe('CreateProjectDialog', () => {
       }
     });
 
-    it('should disable create button when no file is selected', () => {
+    it('should disable create button when no file is selected', async () => {
+      await navigateToUploadStep();
       const createButton = screen.getByText('Create Project');
       expect(createButton).toBeDisabled();
     });

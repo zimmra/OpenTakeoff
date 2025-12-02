@@ -14,13 +14,14 @@ import type { ReactNode } from 'react';
 
 export interface UIOverlaysProps {
   children: ReactNode;
-  toolbar?: ReactNode;      // Top Center
-  header?: ReactNode;       // Top Left
+  toolbar?: ReactNode; // Top Center
+  header?: ReactNode; // Top Left
   zoomControls?: ReactNode; // Bottom Left
-  leftSidebar?: ReactNode;  // Left Center (floating)
-  rightPanel?: ReactNode;   // Right Center (floating)
-  miniMap?: ReactNode;      // Bottom Left (adjoined to zoom)
-  helpPanel?: ReactNode;    // Modal
+  leftSidebar?: ReactNode; // Left Center (floating)
+  rightPanel?: ReactNode; // Right Center (floating)
+  bottomRightControls?: ReactNode; // Bottom Right (anchored to right panel if present)
+  miniMap?: ReactNode; // Bottom Left (adjoined to zoom)
+  helpPanel?: ReactNode; // Modal
   className?: string;
 }
 
@@ -40,6 +41,7 @@ export function UIOverlays({
   zoomControls,
   leftSidebar,
   rightPanel,
+  bottomRightControls,
   miniMap,
   helpPanel,
   className = '',
@@ -53,13 +55,8 @@ export function UIOverlays({
 
       {/* UI Layer - Pointer events disabled by default, enabled on children */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: Z_INDEX.UI }}>
-        
         {/* Top Left: Header */}
-        {header && (
-          <div className="absolute top-4 left-4 pointer-events-auto">
-            {header}
-          </div>
-        )}
+        {header && <div className="absolute top-4 left-4 pointer-events-auto">{header}</div>}
 
         {/* Top Center: Toolbar */}
         {toolbar && (
@@ -76,7 +73,7 @@ export function UIOverlays({
 
         {/* Left Sidebar: Floating vertical stack */}
         {leftSidebar && (
-          <div 
+          <div
             className="absolute left-4 top-20 pointer-events-auto flex flex-col"
             style={{ maxWidth: '300px', maxHeight: 'calc(100% - 320px)' }}
           >
@@ -84,9 +81,19 @@ export function UIOverlays({
           </div>
         )}
 
+        {/* Bottom Right: Snap Controls */}
+        {bottomRightControls && (
+          <div
+            className="absolute bottom-4 pointer-events-auto transition-all duration-300 ease-in-out"
+            style={{ right: rightPanel ? '392px' : '1rem' }}
+          >
+            {bottomRightControls}
+          </div>
+        )}
+
         {/* Right Panel: Floating vertical stack */}
         {rightPanel && (
-          <div 
+          <div
             className="absolute right-4 top-4 bottom-4 pointer-events-auto"
             style={{ maxWidth: '360px' }}
           >

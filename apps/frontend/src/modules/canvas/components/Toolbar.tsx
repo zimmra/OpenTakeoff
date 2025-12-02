@@ -6,7 +6,6 @@
  */
 
 import type { ReactNode } from 'react';
-import { StampToolbar } from '../../stamps/components/StampToolbar';
 import { LocationToolbar } from '../../locations/components/LocationToolbar';
 
 export interface ToolbarProps {
@@ -31,11 +30,6 @@ export function Toolbar({ extraActions, className = '' }: ToolbarProps) {
     >
       {/* Drawing Tools */}
       <LocationToolbar />
-
-      <div className="h-6 w-px bg-slate-200 mx-1"></div>
-
-      {/* Stamp Tools */}
-      <StampToolbar showPlacementToggle={false} className="border-none p-0 bg-transparent" />
 
       {extraActions && (
         <>
