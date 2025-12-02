@@ -116,7 +116,7 @@ describe('CreateProjectDialog', () => {
       user = userEvent.setup();
       render(<CreateProjectDialog {...defaultProps} />);
 
-      const nameInput = screen.getByLabelText(/project name/i) as HTMLInputElement;
+      const nameInput = screen.getByLabelText(/project name/i);
       await user.clear(nameInput);
       await user.type(nameInput, 'Test Project');
 

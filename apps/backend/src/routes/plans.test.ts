@@ -93,7 +93,7 @@ describe('Plan Routes', () => {
   /**
    * Helper function to create a test PDF with specified number of pages
    */
-  async function createTestPdf(pageCount: number = 1): Promise<Buffer> {
+  async function createTestPdf(pageCount = 1): Promise<Buffer> {
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
@@ -233,7 +233,7 @@ describe('Plan Routes', () => {
       // Verify all plans are in database
       const plans = testDb.select().from(schema.plans).all();
       expect(plans).toHaveLength(3);
-      expect(plans.map(p => p.pageNumber).sort()).toEqual([1, 2, 3]);
+      expect(plans.map((p) => p.pageNumber).sort()).toEqual([1, 2, 3]);
     });
 
     it('should reject duplicate file uploads', async () => {
@@ -432,7 +432,7 @@ describe('Plan Routes', () => {
 
       // Verify plan is deleted from database
       const plans = testDb.select().from(schema.plans).all();
-      expect(plans.filter(p => p.id === plan!.id)).toHaveLength(0);
+      expect(plans.filter((p) => p.id === plan!.id)).toHaveLength(0);
     });
 
     it('should return 404 when deleting non-existent plan', async () => {
@@ -486,7 +486,7 @@ describe('Plan Routes', () => {
 
       // Verify plan still exists
       const plans = testDb.select().from(schema.plans).all();
-      expect(plans.filter(p => p.id === plan!.id)).toHaveLength(1);
+      expect(plans.filter((p) => p.id === plan!.id)).toHaveLength(1);
     });
   });
 });

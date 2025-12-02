@@ -166,7 +166,7 @@ class ResizeObserverMock {
           devicePixelContentBoxSize: [],
         },
       ],
-      this as any
+      this as any,
     );
   });
   unobserve = vi.fn();
@@ -259,7 +259,7 @@ describe('TakeoffPage', () => {
           window.history.pushState({}, '', initialRoute);
           return <>{children}</>;
         },
-      }
+      },
     );
   };
 
@@ -452,7 +452,7 @@ describe('TakeoffPage', () => {
         expect(screen.getByTestId('history-timeline')).toBeInTheDocument();
         expect(screen.getByTestId('history-timeline')).toHaveAttribute(
           'data-project-id',
-          'project-1'
+          'project-1',
         );
       });
     });
