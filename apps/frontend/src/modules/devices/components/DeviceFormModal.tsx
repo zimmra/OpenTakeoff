@@ -12,6 +12,7 @@ import { IconPicker } from './IconPicker';
 import { deviceFormSchema, type DeviceFormData } from './DeviceFormSchema';
 import { useCreateDevice, useUpdateDevice } from '../hooks/useDevices';
 import { getNextColor } from '@/utils/colors';
+import { serializeIconConfig } from '../utils/icon';
 import type { Device } from '../types';
 
 interface DeviceFormModalProps {
@@ -22,6 +23,12 @@ interface DeviceFormModalProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
+
+// Default icon configuration
+const DEFAULT_ICON_KEY = serializeIconConfig({
+  provider: 'mdi',
+  name: 'circle-outline',
+});
 
 export function DeviceFormModal({
   projectId,
@@ -36,7 +43,7 @@ export function DeviceFormModal({
   // Mutations
   const createMutation = useCreateDevice(projectId);
   const updateMutation = useUpdateDevice(projectId);
-  
+
   const saveAndCreateNewRef = useRef(false);
 
   // Form setup
@@ -53,7 +60,7 @@ export function DeviceFormModal({
       name: device?.name ?? '',
       description: device?.description ?? '',
       color: device?.color ?? getNextColor(existingColors),
-      iconKey: device?.iconKey ?? '',
+      iconKey: device?.iconKey ?? DEFAULT_ICON_KEY,
     },
   });
 
@@ -64,10 +71,10 @@ export function DeviceFormModal({
         name: device?.name ?? '',
         description: device?.description ?? '',
         color: device?.color ?? getNextColor(existingColors),
-        iconKey: device?.iconKey ?? '',
+        iconKey: device?.iconKey ?? DEFAULT_ICON_KEY,
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- existingColors changes frequently but we only want to initialize once
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- existingColors changes frequently but we only want to initialize once
   }, [device, open, reset]);
 
   const onSubmit = async (data: DeviceFormData) => {
@@ -100,11 +107,11 @@ export function DeviceFormModal({
           name: '',
           description: '',
           color: nextColor,
-          iconKey: '',
+          iconKey: DEFAULT_ICON_KEY,
         });
         saveAndCreateNewRef.current = false;
         onSuccess?.();
-        
+
         // Focus name input if possible, but react-hook-form handles focus usually.
         // We could use setFocus if we exposed it, but reset might be enough.
       } else {
